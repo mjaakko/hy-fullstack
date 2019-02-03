@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 
-import axios from 'axios'
+import { getAll, create, remove, update } from './services/Phonebook'
 
 const Filter = ({ filter, setFilter }) => {
     return (
@@ -10,27 +10,45 @@ const Filter = ({ filter, setFilter }) => {
     )
 }
 
-const Persons = ({ persons, filter }) => {
+const Persons = ({ persons, setPersons, filter }) => {
     const filtered = persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase()))
 
     return (<ul>
         {  
-            filtered.map(person => <Person key={ person.is } {...person} />)
+            filtered.map(person => <Person key={ person.id } persons={ persons } setPersons={ setPersons } {...person} />)
         }
     </ul>)
 }
 
-const Person = ({ name, number }) => (
-    <li>{ name }{" - "}{ number }</li>
+const Person = ({ id, name, number, setPersons, persons }) => (
+    <li>{ name }{" - "}{ number }<button onClick={() => {
+        const confirm = window.confirm(`Poista ${name}`)
+        
+        if (confirm) {
+            remove(id).then(() => {
+                setPersons(persons.filter(person => person.id !== id))
+            })
+        }
+    }}>poista</button></li>
 )
 
 const PersonForm = ({ persons, setPersons, newName, setNewName, newNumber, setNewNumber }) => (
     <form onSubmit={(event) => {
         event.preventDefault();
         if (persons.filter(person => person.name === newName).length > 0) {
-          alert(`${newName} on jo luettelossa`)
+          const confirm = window.confirm(`${newName} on jo luettelossa, korvataanko vanha numero uudella?`)
+
+          if (confirm) {
+            const id = persons.filter(person => person.name === newName)[0].id
+            update(id, { id: id, name: newName, number: newNumber }).then(updatedPerson => 
+                setPersons(persons.map(person => person.id !== id ? person : updatedPerson))
+            )
+            setNewName('');
+          }
         } else {
-          setPersons(persons.concat({ name: newName, number: newNumber }));
+            create({ name: newName, number: newNumber }).then(person => 
+                setPersons(persons.concat(person))
+            )
           setNewName('');
         }
     }}>
@@ -53,12 +71,10 @@ const App = () => {
   const [ filter, setFilter ] = useState('')
 
   useEffect(() => {
-    console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
-      })
+      getAll()
+        .then(persons => {
+            setPersons(persons)
+        })
   }, [])
 
   return (
@@ -72,7 +88,7 @@ const App = () => {
         setPersons={ setPersons }/>
       <h2>Numerot</h2>
       <Filter filter={ filter } setFilter={ setFilter }/>
-      <Persons persons={ persons } filter={ filter }/>
+      <Persons persons={ persons } setPersons={ setPersons } filter={ filter }/>
     </div>
   )
 
