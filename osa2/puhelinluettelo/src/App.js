@@ -10,29 +10,30 @@ const Filter = ({ filter, setFilter }) => {
     )
 }
 
-const Persons = ({ persons, setPersons, filter }) => {
+const Persons = ({ persons, setPersons, filter, setNotification }) => {
     const filtered = persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase()))
 
     return (<ul>
         {  
-            filtered.map(person => <Person key={ person.id } persons={ persons } setPersons={ setPersons } {...person} />)
+            filtered.map(person => <Person key={ person.id } persons={ persons } setPersons={ setPersons } setNotification={ setNotification } {...person} />)
         }
     </ul>)
 }
 
-const Person = ({ id, name, number, setPersons, persons }) => (
+const Person = ({ id, name, number, setPersons, persons, setNotification }) => (
     <li>{ name }{" - "}{ number }<button onClick={() => {
         const confirm = window.confirm(`Poista ${name}`)
         
         if (confirm) {
             remove(id).then(() => {
                 setPersons(persons.filter(person => person.id !== id))
+                setNotification({ message: `Poistettiin ${name}`})
             })
         }
     }}>poista</button></li>
 )
 
-const PersonForm = ({ persons, setPersons, newName, setNewName, newNumber, setNewNumber }) => (
+const PersonForm = ({ persons, setPersons, newName, setNewName, newNumber, setNewNumber, setNotification }) => (
     <form onSubmit={(event) => {
         event.preventDefault();
         if (persons.filter(person => person.name === newName).length > 0) {
@@ -40,15 +41,17 @@ const PersonForm = ({ persons, setPersons, newName, setNewName, newNumber, setNe
 
           if (confirm) {
             const id = persons.filter(person => person.name === newName)[0].id
-            update(id, { id: id, name: newName, number: newNumber }).then(updatedPerson => 
+            update(id, { id: id, name: newName, number: newNumber }).then(updatedPerson => {
                 setPersons(persons.map(person => person.id !== id ? person : updatedPerson))
-            )
+                setNotification({ message: `Päivitettiin ${updatedPerson.name} numero` })
+            }).catch(error => setNotification({ type: "error", message: `${newName} oli jo poistettu`}))
             setNewName('');
           }
         } else {
-            create({ name: newName, number: newNumber }).then(person => 
+            create({ name: newName, number: newNumber }).then(person => {
                 setPersons(persons.concat(person))
-            )
+                setNotification({ message: `Lisättiin ${person.name}`})
+            })
           setNewName('');
         }
     }}>
@@ -64,11 +67,27 @@ const PersonForm = ({ persons, setPersons, newName, setNewName, newNumber, setNe
     </form>
 )
 
+const Notification = ({ type, message, setNotification }) => {
+    useEffect(() => setTimeout(() => setNotification(null), 5000), [])
+
+    return (<div style={{
+        color: type === "error" ? "red" : "green",
+        background: "lightgrey",
+        fontSize: "20px",
+        borderStyle: "solid",
+        borderRadius: "5px",
+        padding: "10px",
+        marginBottom: "10px"}}>
+        { message }
+    </div>)
+}
+
 const App = () => {
   const [ persons, setPersons] = useState([]) 
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
   const [ filter, setFilter ] = useState('')
+  const [ notification, setNotification ] = useState(null)
 
   useEffect(() => {
       getAll()
@@ -80,15 +99,17 @@ const App = () => {
   return (
     <div>
       <h2>Puhelinluettelo</h2>
+      { notification && <Notification {...notification} setNotification={ setNotification }/>}
       <PersonForm newName={ newName } 
         setNewName={ setNewName } 
         newNumber={ newNumber } 
         setNewNumber={ setNewNumber } 
         persons={ persons } 
-        setPersons={ setPersons }/>
+        setPersons={ setPersons }
+        setNotification={ setNotification }/>
       <h2>Numerot</h2>
       <Filter filter={ filter } setFilter={ setFilter }/>
-      <Persons persons={ persons } setPersons={ setPersons } filter={ filter }/>
+      <Persons persons={ persons } setPersons={ setPersons } filter={ filter } setNotification={ setNotification }/>
     </div>
   )
 
