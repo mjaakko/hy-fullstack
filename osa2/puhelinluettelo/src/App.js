@@ -1,4 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+
+import axios from 'axios'
 
 const Filter = ({ filter, setFilter }) => {
     return (
@@ -13,7 +15,7 @@ const Persons = ({ persons, filter }) => {
 
     return (<ul>
         {  
-            filtered.map(person => <Person key={ person.name } {...person} />)
+            filtered.map(person => <Person key={ person.is } {...person} />)
         }
     </ul>)
 }
@@ -45,12 +47,19 @@ const PersonForm = ({ persons, setPersons, newName, setNewName, newNumber, setNe
 )
 
 const App = () => {
-  const [ persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '123' }
-  ]) 
+  const [ persons, setPersons] = useState([]) 
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
   const [ filter, setFilter ] = useState('')
+
+  useEffect(() => {
+    console.log('effect')
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        setPersons(response.data)
+      })
+  }, [])
 
   return (
     <div>
