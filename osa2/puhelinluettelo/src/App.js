@@ -28,7 +28,7 @@ const Person = ({ id, name, number, setPersons, persons, setNotification }) => (
             remove(id).then(() => {
                 setPersons(persons.filter(person => person.id !== id))
                 setNotification({ message: `Poistettiin ${name}`})
-            })
+            }).catch(error => setNotification({ type: "error", message: error.response.data.error}))
         }
     }}>poista</button></li>
 )
@@ -44,14 +44,14 @@ const PersonForm = ({ persons, setPersons, newName, setNewName, newNumber, setNe
             update(id, { id: id, name: newName, number: newNumber }).then(updatedPerson => {
                 setPersons(persons.map(person => person.id !== id ? person : updatedPerson))
                 setNotification({ message: `Päivitettiin ${updatedPerson.name} numero` })
-            }).catch(error => setNotification({ type: "error", message: `${newName} oli jo poistettu`}))
+            }).catch(error => setNotification({ type: "error", message: error.response.data.error}))
             setNewName('');
           }
         } else {
             create({ name: newName, number: newNumber }).then(person => {
                 setPersons(persons.concat(person))
                 setNotification({ message: `Lisättiin ${person.name}`})
-            })
+            }).catch(error => setNotification({ type: "error", message: error.response.data.error}))
           setNewName('');
         }
     }}>
