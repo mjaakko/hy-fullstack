@@ -1,14 +1,15 @@
 import React from 'react'
+import { connect } from 'react-redux'
 
 import { addAnecdote } from '../reducers/anecdoteReducer'
 import { display } from '../reducers/notificationReducer'
 
-export default ({ store }) => {
+const AnecdoteForm = ({ addAnecdote, display }) => {
   const add = event => {
     event.preventDefault()
     const content = event.target.content.value
-    store.dispatch(addAnecdote(content))
-    store.dispatch(display(`You created anecdote '${content}'`))
+    addAnecdote(content)
+    display(`You created anecdote '${content}'`)
     event.target.content.value = ''
   }
 
@@ -21,3 +22,9 @@ export default ({ store }) => {
     </form>
   </>)
 }
+
+const mapDispatchToProps = {
+  addAnecdote, display
+}
+
+export default connect(null, mapDispatchToProps)(AnecdoteForm)

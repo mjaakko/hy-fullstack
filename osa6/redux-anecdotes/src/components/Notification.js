@@ -1,24 +1,33 @@
 import React from 'react';
+import { connect } from 'react-redux'
 
 import { hide } from '../reducers/notificationReducer'
 
-const Notification = ({ store }) => {
+const Notification = ({ notification, hide }) => {
   const style = {
     border: 'solid',
     padding: 10,
     borderWidth: 1
   }
 
-  if (!store.getState().notification) {
+  if (!notification) {
     return null
   }
 
-  setTimeout(() => store.dispatch(hide()), 5000)
+  setTimeout(hide, 5000)
   return (
     <div style={style}>
-      { store.getState().notification }
+      { notification }
     </div>
   )
 }
 
-export default Notification
+const mapStateToProps = state => {
+  return { notification: state.notification }
+}
+
+const mapDispatchToProps = {
+  hide
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Notification)
