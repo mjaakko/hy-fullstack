@@ -5,7 +5,7 @@ import { vote } from '../reducers/anecdoteReducer'
 import { display } from '../reducers/notificationReducer'
 import Filter from './Filter';
 
-const AnecdoteList = ({ anecdotes, filter, vote, display }) => (
+const AnecdoteList = ({ anecdotes, vote, display }) => (
     <>
         <h2>Anecdotes</h2>
         <Filter/>
@@ -17,8 +17,8 @@ const AnecdoteList = ({ anecdotes, filter, vote, display }) => (
             <div>
             has {anecdote.votes}
             <button onClick={() => { 
-                vote(anecdote.id)
-                display(`You voted ${anecdote.content}`)
+                vote(anecdote)
+                display(`You voted ${anecdote.content}`, 5)
             }}>vote</button>
             </div>
         </div>
@@ -29,7 +29,7 @@ const AnecdoteList = ({ anecdotes, filter, vote, display }) => (
 const filteredAnecdotes = (anecdotes, filter) => anecdotes.filter(anecdote => anecdote.content.includes(filter))
 
 const mapStateToProps = state => {
-    return { anecdotes: filteredAnecdotes(state.anecdotes, state.filter), filter: state.filter }
+    return { anecdotes: filteredAnecdotes(state.anecdotes, state.filter) }
 }
 
 const mapDispatchToProps = {

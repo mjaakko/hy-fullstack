@@ -15,15 +15,12 @@ const reducer = (state = initialState, action) => {
 
 export default reducer
 
-export const display = content => {
-  return {
-    type: 'DISPLAY_NOTIFICATION',
-    data: content
-  }
-}
-
-export const hide = () => {
-  return {
-    type: 'HIDE_NOTIFICATION'
+export const display = (content, time) => {
+  return dispatch => {
+    setTimeout(() => dispatch({ type: 'HIDE_NOTIFICATION' }), time * 1000);
+    dispatch({
+      type: 'DISPLAY_NOTIFICATION',
+      data: content
+    })
   }
 }

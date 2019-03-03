@@ -1,9 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux'
 
-import { hide } from '../reducers/notificationReducer'
-
-const Notification = ({ notification, hide }) => {
+const Notification = ({ notification }) => {
   const style = {
     border: 'solid',
     padding: 10,
@@ -13,8 +11,6 @@ const Notification = ({ notification, hide }) => {
   if (!notification) {
     return null
   }
-
-  setTimeout(hide, 5000)
   return (
     <div style={style}>
       { notification }
@@ -26,8 +22,4 @@ const mapStateToProps = state => {
   return { notification: state.notification }
 }
 
-const mapDispatchToProps = {
-  hide
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Notification)
+export default connect(mapStateToProps)(Notification)
