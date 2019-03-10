@@ -7,7 +7,6 @@ import {
 import { Container, Table, Menu, Message, Form } from 'semantic-ui-react'
 
 import Blog from './components/Blog'
-import Togglable from './components/Togglable'
 import { useField } from './hooks'
 import { displayNotification } from './reducers/notification'
 import { initializeBlogs, addBlog, voteBlog, removeBlog } from './reducers/blog'
